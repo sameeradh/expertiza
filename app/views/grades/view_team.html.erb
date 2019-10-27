@@ -32,7 +32,7 @@
 <!--Toggle submission-->
 <button onclick="toggleFunction('<%= @participant.id.to_s%>')" class="btn btn-default">Show Submission</button>
 <div id="<%= @participant.id.to_s%>" style="display:none;">
-<% if @participant.team.hyperlinks.try(:length) %>
+<% if @participant.team.submitted_hyperlinks.try(:length) %>
   <%= render :partial => 'submitted_content/hyperlink', :locals => {participant: @participant, stage: @stage} %>
   <% else %>
  <b>No Submission</b>
