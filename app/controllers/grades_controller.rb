@@ -118,7 +118,6 @@ class GradesController < ApplicationController
       @vmlist << vm
 
 
-
       @vmlist.each do |vm|
         if vm.round == @round
           vm.list_of_rows.each do |r|
