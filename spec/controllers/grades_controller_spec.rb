@@ -10,13 +10,14 @@ describe GradesController do
   let(:question) { build(:question) }
   let(:team) { build(:assignment_team, id: 1, assignment: assignment, users: [instructor]) }
   let(:student) { build(:student) }
-  let(:review_response_map) { build(:review_response_map, id: 1) }
   let(:assignment_due_date) { build(:assignment_due_date) }
   let(:participantOurs) { Participant.new( id: 37619, can_submit: true, can_review: true, user_id: 7552, parent_id: 876,
                                 submitted_at: nil, permission_granted: nil, penalty_accumulated: 0, grade: nil,
                                 type: "AssignmentParticipant", handle: "handle", time_stamp: nil, digital_signature: nil,
                                 duty: nil, can_take_quiz: true, Hamer: 1.0, Lauw: 0.0)
                        }
+  let(:reviewer) { build(:participant, id: 2, assignment: assignment, user_id: 2) }
+  let(:review_response_map) { build(:review_response_map, id: 1) }
 
   #Multiple questions for proper testing of tags
   let(:question1) { build(:question, id: 1, type: "normal") }
@@ -87,6 +88,7 @@ describe GradesController do
       allow(team).to receive(:participants).and_return([participant])
 
       allow(review_questionnaire).to receive(:used_in_round).and_return(0)
+      allow(review_questionnaire).to receive(:questions).and_return([question1, question2])
 
       allow(TagPrompt).to receive(:find).with(1).and_return(tag_prompt1)
       allow(TagPrompt).to receive(:find).with(2).and_return(tag_prompt2)
@@ -122,6 +124,25 @@ describe GradesController do
         expect(assigns(:total_tags)).to eq(6)
         end
     end
+    it "reports some completed tags correctly" do
+        answer_tags = [AnswerTag.new(value: 0), AnswerTag.new(value: 1), AnswerTag.new(value: -1), AnswerTag.new(value: 1),
+                       AnswerTag.new(value: 1), AnswerTag.new(value: 1), AnswerTag.new(value: -1), AnswerTag.new(value: 0),]
+        
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment1, user_id: 1, answer: answer2).and_return([answer_tags[0]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment2, user_id: 1, answer: answer2).and_return([answer_tags[1]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment3, user_id: 1, answer: answer2).and_return([answer_tags[2]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment4, user_id: 1, answer: answer2).and_return([answer_tags[3]])
+        
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment1, user_id: 1, answer: answer1).and_return([answer_tags[4]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment2, user_id: 1, answer: answer1).and_return([answer_tags[5]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment3, user_id: 1, answer: answer1).and_return([answer_tags[6]])
+        allow(AnswerTag).to receive(:where).with(tag_prompt_deployment_id: deployment4, user_id: 1, answer: answer1).and_return([answer_tags[7]])
+        params = {id: 1}
+        get :view_team, params
+        expect(controller.instance_variable_get(:@participant)).to eq(participant)
+        expect(assigns(:completed_tags)).to eq(5)
+        expect(assigns(:total_tags)).to eq(6)
+      end
   end
 
   #describe '#view_team' do

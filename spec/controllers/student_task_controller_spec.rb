@@ -4,8 +4,6 @@ describe StudentTaskController do
   #Copied from grades_controller_spec.rb
   
   let(:review_response) { build(:response, id: 1) }
-  let(:review_response_map) {ReviewResponseMap.new(id: 1, map_id: 1, assignment: assignment,
-                                reviewer: reviewer, reviewee: participant)}
   let(:assignment) { build(:assignment, id: 1, questionnaires: [review_questionnaire], is_penalty_calculated: true) }
   let(:assignment_questionnaire) { build(:assignment_questionnaire, used_in_round: 1, assignment: assignment) }
   #Multiple questions for proper testing of tags
